@@ -1,0 +1,4 @@
+exceptions:
+  - name: ex101
+    description: Occurs when request to api server fails
+  - name:
