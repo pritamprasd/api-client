@@ -22,11 +22,15 @@ var RequestParentComponent = /** @class */ (function (_super) {
         var _this = _super.call(this, props) || this;
         _this.state = {
             url: "",
-            response: ""
+            response: "",
+            verb: "none",
+            responseHeader: ""
         };
         _this.sendRequest = _this.sendRequest.bind(_this);
         _this.setUrl = _this.setUrl.bind(_this);
         _this.setResponse = _this.setResponse.bind(_this);
+        _this.setVerb = _this.setVerb.bind(_this);
+        _this.setResponseHeaders = _this.setResponseHeaders.bind(_this);
         return _this;
     }
     RequestParentComponent.prototype.setUrl = function (u) {
@@ -52,33 +56,50 @@ var RequestParentComponent = /** @class */ (function (_super) {
             };
             axios_1["default"].post(backendServiceSingleApiExeUrl, requestBody, config).then(function (res) {
                 _this.setResponse(JSON.stringify(res.data));
+                _this.setResponseHeaders(res.headers);
             })["catch"](function (e) { return console.error(e); });
         }
         else {
             console.log("Invalid url: " + this.state.url);
         }
     };
+    RequestParentComponent.prototype.setResponseHeaders = function (o) {
+        this.setState({
+            responseHeader: JSON.stringify(o)
+        });
+        console.log("Headers : " + JSON.stringify(o));
+    };
+    RequestParentComponent.prototype.setVerb = function (v) {
+        this.setState({
+            verb: v
+        });
+        console.log("Verb changed: " + v);
+    };
     RequestParentComponent.prototype.render = function () {
         var _this = this;
         return (react_1["default"].createElement("div", null,
             react_1["default"].createElement("div", { id: "input" },
-                react_1["default"].createElement("label", null,
-                    "URL:",
-                    react_1["default"].createElement("input", { type: "url", value: this.state.url, onChange: function (e) { return _this.setUrl(e.target.value); }, required: true }),
-                    react_1["default"].createElement("input", { type: "button", value: "Send", onClick: this.sendRequest }))),
+                react_1["default"].createElement("select", { name: "verbs", id: "httpverbs", onChange: function (e) { return _this.setVerb(e.target.value); } },
+                    react_1["default"].createElement("option", { value: "get" }, "GET"),
+                    react_1["default"].createElement("option", { value: "post" }, "POST"),
+                    react_1["default"].createElement("option", { value: "put" }, "PUT"),
+                    react_1["default"].createElement("option", { value: "delete" }, "DELETE"),
+                    react_1["default"].createElement("option", { value: "options" }, "OPTIONS"),
+                    react_1["default"].createElement("option", { value: "head" }, "HEAD"),
+                    react_1["default"].createElement("option", { value: "graphql" }, "GraphQL")),
+                "URL:",
+                react_1["default"].createElement("input", { placeholder: "api server url", type: "url", value: this.state.url, onChange: function (e) { return _this.setUrl(e.target.value); }, required: true }),
+                react_1["default"].createElement("input", { type: "button", value: "Send", onClick: this.sendRequest })),
             react_1["default"].createElement("div", { id: "output" },
-                react_1["default"].createElement("textarea", { id: "apiOutput", value: this.state.response }))));
+                react_1["default"].createElement("label", { id: "apiOutputResponseBody" }, this.state.response),
+                react_1["default"].createElement("hr", null),
+                react_1["default"].createElement("label", { id: "apiOutputResponseHeader" }, this.state.responseHeader))));
     };
     return RequestParentComponent;
 }(react_1.Component));
 function isValidUrl(s) {
-    var pattern = new RegExp('^(https?:\\/\\/)?' + // protocol
-        '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' + // domain name
-        '((\\d{1,3}\\.){3}\\d{1,3}))' + // OR ip (v4) address
-        '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // port and path
-        '(\\?[;&a-z\\d%_.~+=-]*)?' + // query string
-        '(\\#[-a-z\\d_]*)?$', 'i'); // fragment locator
-    return !!pattern.test(s);
+    var valid = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/.test(s);
+    return valid;
 }
 function getNormalizedUrl(s) {
     return s.search("http") === -1 ? "http://" + s : s;

@@ -36,7 +36,7 @@ var BackEndServiceStatus = /** @class */ (function (_super) {
     }
     BackEndServiceStatus.prototype.getStatusImage = function () {
         if (this.state.status === ServiceStatus.UP) {
-            return (react_1["default"].createElement("img", { src: require('../images/g.png'), alt: "service down image", id: ".status_image", width: iconsize, height: iconsize }));
+            return (react_1["default"].createElement("img", { src: require('../images/g.png'), alt: "service up image", id: ".status_image", width: iconsize, height: iconsize }));
         }
         else {
             return (react_1["default"].createElement("img", { src: require('../images/r.png'), alt: "service down image", id: ".status_image", width: iconsize, height: iconsize }));

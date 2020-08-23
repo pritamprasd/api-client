@@ -30,7 +30,7 @@ class BackEndServiceStatus extends Component<Props, State> {
             return (
                 <img
                     src={require('../images/g.png')}
-                    alt="service down image" id=".status_image" width={iconsize} height={iconsize} />
+                    alt="service up image" id=".status_image" width={iconsize} height={iconsize} />
             );
         } else {
             return (

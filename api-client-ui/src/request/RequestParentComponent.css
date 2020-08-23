@@ -1,4 +1,10 @@
-#apiOutput{
-    background-color: grey;
-    color: aqua;
+#apiOutputResponseBody {
+  color: darkslategrey;
+  width: auto;
+  font-size: small;
+}
+#apiOutputResponseHeader {
+  color: darkslategrey;
+  width: auto;
+  font-size: small;  
 }

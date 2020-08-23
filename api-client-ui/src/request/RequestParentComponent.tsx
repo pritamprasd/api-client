@@ -8,7 +8,12 @@ export interface Props {
 
 interface State {
     url: string;
+    verb: string;
     response: string;
+    responseHeader: string;
+}
+
+interface ResponseHeader{    
 }
 
 class RequestParentComponent extends Component<Props, State> {
@@ -16,11 +21,15 @@ class RequestParentComponent extends Component<Props, State> {
         super(props);
         this.state = {
             url: "",
-            response: ""
+            response: "",
+            verb: "none",
+            responseHeader: "",
         }
         this.sendRequest = this.sendRequest.bind(this);
         this.setUrl = this.setUrl.bind(this);
         this.setResponse = this.setResponse.bind(this);
+        this.setVerb = this.setVerb.bind(this);
+        this.setResponseHeaders = this.setResponseHeaders.bind(this);
     }
 
     setUrl(u: string) {
@@ -51,24 +60,45 @@ class RequestParentComponent extends Component<Props, State> {
                 config
             ).then(res => {
                 this.setResponse(JSON.stringify(res.data))
+                this.setResponseHeaders(res.headers)
             }).catch((e) => console.error(e));
         } else {
             console.log("Invalid url: " + this.state.url);
         }
     }
-
+    setResponseHeaders(o: object) {
+        this.setState({
+            responseHeader: JSON.stringify(o)
+        });
+        console.log("Headers : " + JSON.stringify(o))
+    }
+    setVerb(v: string) {
+        this.setState({
+            verb: v
+        });
+        console.log("Verb changed: " + v)
+    }
     render() {
         return (
             <div>
                 <div id="input">
-                    <label>
+                    <select name="verbs" id="httpverbs" onChange={e => this.setVerb(e.target.value)}>
+                        <option value="get">GET</option>
+                        <option value="post">POST</option>
+                        <option value="put">PUT</option>
+                        <option value="delete">DELETE</option>
+                        <option value="options">OPTIONS</option>
+                        <option value="head">HEAD</option>
+                        <option value="graphql">GraphQL</option>
+                    </select>
                         URL:
-                         <input type="url" value={this.state.url} onChange={e => this.setUrl(e.target.value)} required />
-                        <input type="button" value="Send" onClick={this.sendRequest} />
-                    </label>
+                        <input placeholder="api server url" type="url" value={this.state.url} onChange={e => this.setUrl(e.target.value)} required />
+                    <input type="button" value="Send" onClick={this.sendRequest} />
                 </div>
                 <div id="output">
-                    <textarea id="apiOutput" value={this.state.response} />
+                    <label id="apiOutputResponseBody">{this.state.response}</label>
+                    <hr/>
+                    <label id="apiOutputResponseHeader">{this.state.responseHeader}</label>
                 </div>
             </div>
         );
@@ -76,13 +106,8 @@ class RequestParentComponent extends Component<Props, State> {
 }
 
 function isValidUrl(s: string): boolean {
-    var pattern = new RegExp('^(https?:\\/\\/)?' + // protocol
-        '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' + // domain name
-        '((\\d{1,3}\\.){3}\\d{1,3}))' + // OR ip (v4) address
-        '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // port and path
-        '(\\?[;&a-z\\d%_.~+=-]*)?' + // query string
-        '(\\#[-a-z\\d_]*)?$', 'i'); // fragment locator
-    return !!pattern.test(s);
+    let valid = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/.test(s);
+    return valid;
 }
 
 function getNormalizedUrl(s: string): string {
